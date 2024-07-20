@@ -94,9 +94,22 @@ class BankSim(mesa.Model):
         self.grid = mesa.space.NetworkGrid(self.G)
         self.schedule = mesa.time.RandomActivation(self)
 
+        # This is only created here to make it easier to get
+        # all the column names for the table datacollector below
+        b = Bank(
+            {
+                "unique_id": 0,
+                "model": self,
+                "equity": 100,
+                "rfree": self.rfree,
+                "car": self.car,
+                "buffer_reserves_ratio": 1.5,
+            }
+        )
         # Data frames
         self.datacollector = mesa.datacollection.DataCollector(
-            model_reporters={"TotalAssets": get_sum_totalassets}
+            model_reporters={"TotalAssets": get_sum_totalassets},
+            tables={"Banks": list(b.into_table_row(0).keys())},
         )
 
         # Setup agents
@@ -194,14 +207,27 @@ class BankSim(mesa.Model):
             self.schedule, self.car, self.min_reserves_ratio, self.bankrupt_liquidation
         )
 
-        self.schedule.step()
         self.datacollector.collect(self)
+        for b in self.schedule.agents:
+            if isinstance(b, Bank):
+                # Collect all the bank particulars...
+                self.datacollector.add_table_row(
+                    "Banks", b.into_table_row(self.schedule.steps)
+                )
+
+        self.schedule.step()
 
     def get_data_frame(self):
         """
         Return the dataframe from the model reporter
         """
         return self.datacollector.get_model_vars_dataframe()
+
+    def get_bank_data_frame(self):
+        """
+        Return the dataframe from the Bank table
+        """
+        return self.datacollector.get_table_dataframe("Banks")
 
     def run_model(self):
         """

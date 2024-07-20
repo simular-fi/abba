@@ -412,6 +412,59 @@ class Bank(mesa.Agent):
     def ib_credit_loss_4log(self, ib_credit_loss_4log):
         self.__ib_credit_loss_4log = ib_credit_loss_4log
 
+    def into_table_row(self, step):
+        """
+        Create a Dict of the state to be used as a table entry for
+        data collection.
+        """
+        data = {}
+        data["step"] = step
+        data["uid"] = self.unique_id
+        data["equity"] = self.equity
+        data["deposits"] = self.bank_deposits
+        data["loans"] = self.bank_loans
+        data["reserves"] = self.bank_reserves
+        data["total_assets"] = self.total_assets
+        data["provisions"] = self.bank_provisions
+        data["new_provisions"] = self.bank_new_provisions
+        data["ib_credits"] = self.ib_credits_4log
+        data["ib_debits"] = self.ib_debits_4log
+        data["net_interest_income"] = self.net_interest_income
+        data["interest_income"] = self.interest_income
+        data["interest_expense"] = self.interest_expense
+        data["ib_interest_income_4log"] = self.ib_interest_income_4log
+        data["ib_interest_expense_4log"] = self.ib_interest_expense_4log
+        data["ib_net_interest_income_4log"] = self.ib_net_interest_income_4log
+        data["ib_credit_loss"] = self.ib_credit_loss
+        data["rwassets"] = self.rwassets
+        data["dividend"] = self.bank_dividend
+        data["cum_dividend"] = self.bank_cum_dividend
+        data["deposit_outflow"] = self.deposit_outflow
+        data["deposit_inflow"] = self.deposit_inflow
+        data["net_deposit_flow"] = self.net_deposit_flow
+        data["defaulted_loans"] = self.defaulted_loans
+        data["bank_solvent"] = (
+            self.bank_solvent if self.bank_solvent is None else int(self.bank_solvent)
+        )
+        data["capitalized"] = (
+            self.bank_capitalized
+            if self.bank_capitalized is None
+            else int(self.bank_capitalized)
+        )
+        data["credit_failure"] = (
+            self.credit_failure
+            if self.credit_failure is None
+            else int(self.credit_failure)
+        )
+
+        data["liquidity_failure"] = (
+            self.liquidity_failure
+            if self.liquidity_failure is None
+            else int(self.liquidity_failure)
+        )
+
+        return data
+
     def get_all_variables(self):
         res = [
             "",  # AgtBankId
