@@ -50,9 +50,12 @@ def main_second_round_effects(schedule, bankrupt_liquidation, car, G):
     solvent_banks = [
         x for x in schedule.agents if isinstance(x, Bank) and x.bank_solvent
     ]
+
+    # TODO: remove?
     insolvent_banks = [
         x for x in schedule.agents if isinstance(x, Bank) and not x.bank_solvent
     ]
+
     solvent_banks_afterwards = list()
     while len(set(solvent_banks).intersection(solvent_banks_afterwards)) != len(
         solvent_banks

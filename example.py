@@ -14,5 +14,12 @@ if __name__ == "__main__":
         lambda x: x["reserves"] / x["deposits"], axis=1
     )
 
+    plotit = (
+        bank_data[["step", "reserves", "deposits", "reserve_ratio"]]
+        .groupby(["step"])
+        .mean()
+    )
+
     print(sim.get_data_frame())
     print(bank_data)
+    print(plotit)

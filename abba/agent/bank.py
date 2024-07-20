@@ -465,6 +465,7 @@ class Bank(mesa.Agent):
 
         return data
 
+    # TODO: remove?
     def get_all_variables(self):
         res = [
             "",  # AgtBankId

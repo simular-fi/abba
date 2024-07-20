@@ -12,21 +12,26 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
         and x.loan_approved
         and x.loan_solvent
     ]
+
+    # Randomly fail on some loans
     for loan in loans_with_bank:
         if loan.pdef > random.random():
             loan.loan_solvent = False
-            # TO DO: change color to magenta
         loan.rwamount = loan.rweight * loan.amount
+
     loans_with_bank_default = [x for x in loans_with_bank if not x.loan_solvent]
+
     # notice that deposits do not change when loans are defaulting
     solvent_bank.rwassets = solvent_bank.rwassets - sum(
         [x.rwamount for x in loans_with_bank_default]
     )
+
     # Add provision to equity to obtain the total buffer against credit losses,
     # substract losses, and calculate the equity amount before new provisions
     solvent_bank.equity = solvent_bank.equity - sum(
         [x.lgdamount for x in loans_with_bank_default]
     )
+
     # Calculate the new required level of provisions and substract of equity
     # equity may be negative but do not set the bank to default yet until
     # net income is calculated
@@ -47,7 +52,6 @@ def calculate_credit_loss_loan_book(schedule, solvent_bank):
     change_in_provisions = (
         solvent_bank.bank_new_provisions - solvent_bank.bank_provisions
     )
-
     solvent_bank.bank_provisions = solvent_bank.bank_new_provisions
     solvent_bank.equity = solvent_bank.equity - change_in_provisions
     solvent_bank.bank_reserves = solvent_bank.bank_reserves + sum(
@@ -193,9 +197,13 @@ def main_evaluate_solvency(schedule, reserve_rates, bankrupt_liquidation, car):
     for solvent_bank in [
         x for x in schedule.agents if isinstance(x, Bank) and x.bank_solvent
     ]:
+        # randomly fail on some loans
         calculate_credit_loss_loan_book(schedule, solvent_bank)
+        # calculate income on interest
         calculate_interest_income_loans(schedule, reserve_rates, solvent_bank)
+        # calculate how much owed on interest to deposit accounts
         calculate_interest_expense_deposits(schedule, solvent_bank)
+        # calculate net interest income...
         calculate_net_interest_income(solvent_bank)
 
         solvent_bank.equity = solvent_bank.equity + solvent_bank.net_interest_income

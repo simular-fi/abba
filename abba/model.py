@@ -1,5 +1,3 @@
-import dataclasses
-
 import mesa
 import numpy as np
 import networkx as nx
@@ -21,26 +19,9 @@ from abba.logic.f6_expand_loan_book import main_build_loan_book_locally
 from abba.logic.f6_expand_loan_book import main_build_loan_book_globally
 from abba.logic.f7_eval_liquidity import main_evaluate_liquidity
 
-
-@dataclasses.dataclass
-class ModelConfig:
-    """
-    Base model configuration values with default values.
-    We use this vs. a Dict for readability and type checking.
-    """
-
-    num_steps: int = 10  # num of steps in the model
-    num_savers: int = 10_000  # num of savers
-    num_loans: int = 20_000  # num of loans
-    num_banks: int = 10  # num of banks
-    car: float = 0.08  # capital adequacy ratio requirement
-    initial_equity: int = 100  # initial bank equity
-    risk_free_rate: float = 0.01  # risk free rate
-    min_reserves_ratio: float = 0.03  # minimum reserve ratio
-
-    # 0 = bank liquidates loans at face value
-    # 1 = fire sale of assets
-    bankrupt_liquidation: int = 1
+# Range of value used in original experiment:
+# CAR               : 0.04, 0.08, 0.12, 0.16
+# min_reserves_ratio: 0.015, 0.03, 0.045, 0.06
 
 
 def get_sum_totalassets(model):
@@ -55,18 +36,19 @@ class BankSim(mesa.Model):
     Core model
     """
 
-    # TODO: Using the ModelConfig doesn't work with JupyterViz
     def __init__(
         self,
-        num_steps: int = 10,
-        num_savers: int = 10_000,
-        num_loans: int = 20_000,
-        num_banks: int = 10,
-        car: float = 0.04,
-        initial_equity: int = 100,
-        risk_free_rate: float = 0.01,
-        min_reserves_ratio: float = 0.03,
-        bankrupt_liquidation: int = 1,
+        num_steps: int = 10,  # Number of steps to run in the model
+        num_savers: int = 10_000,  # Number of savers
+        num_loans: int = 20_000,  # Number of loans
+        num_banks: int = 10,  # Number of banks
+        car: float = 0.04,  # Capital Adequacy Ratio
+        initial_equity: int = 100,  # Inital equity...tier 1?
+        risk_free_rate: float = 0.01,  # Risk free rate
+        min_reserves_ratio: float = 0.03,  # minimum reserve ratio
+        bankrupt_liquidation: int = 1,  # How the bank liquidates. Two possible values:
+        # 0 = bank liquidates loans at face value,
+        # 1 = fire sale of assets
     ):
         super().__init__()
 
